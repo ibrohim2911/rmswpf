@@ -121,6 +121,12 @@ namespace rms_gui
             var btn = sender as Button;
             var selectedTable = btn.Tag as Table;
 
+            if (selectedTable == null || string.IsNullOrEmpty(selectedTable.id))
+            {
+                MessageBox.Show("Xatolik: Stol ID si topilmadi!");
+                return;
+            }
+
             if (selectedTable.availability == false)
             {
                 MessageBox.Show("Bu stol band! (This table is occupied)", "Warning");
@@ -129,26 +135,42 @@ namespace rms_gui
 
             try
             {
+                // 1. Obyektni yaratamiz
                 var orderPayload = new { table = selectedTable.id, customer_quantity = 1 };
-                var response = await ApiClient.Client.PostAsJsonAsync("/api/orders/orders/", orderPayload);
+
+                // 2. O'zimiz qat'iy JSON matniga aylantiramiz
+                string jsonPayload = System.Text.Json.JsonSerializer.Serialize(orderPayload);
+
+                // 3. StringContent orqali yuboramiz (Bu "Chunked" xatosini butunlay yo'q qiladi!)
+                var content = new System.Net.Http.StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
+
+                // PostAsJsonAsync o'rniga oddiy PostAsync ishlatamiz
+                var response = await ApiClient.Client.PostAsync("/api/orders/orders/", content);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, NumberHandling = JsonNumberHandling.AllowReadingFromString };
-                    var createdOrder = await response.Content.ReadFromJsonAsync<Order>(options);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        NumberHandling = JsonNumberHandling.AllowReadingFromString
+                    };
 
-                    // Yaratilgan yangi Order bilan sahifaga o'tish
+                    // Kelgan ma'lumotni ham oddiy matn sifatida o'qib, keyin aylantiramiz
+                    string responseJson = await response.Content.ReadAsStringAsync();
+                    var createdOrder = JsonSerializer.Deserialize<Order>(responseJson, options);
+
+                    // OrderDetailPage ga o'tish
                     this.NavigationService.Navigate(new OrderDetailPage(createdOrder));
                 }
                 else
                 {
                     string err = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show("Buyurtma yaratishda xatolik: " + err);
+                    MessageBox.Show($"Backend xatoligi ({response.StatusCode}):\n{err}\n\nYuborilgan ma'lumot:\n{jsonPayload}");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Xatolik: " + ex.Message);
+                MessageBox.Show("Dastur xatoligi: " + ex.Message);
             }
         }
         private void UpdateBottomBarButtons(int activeIndex)

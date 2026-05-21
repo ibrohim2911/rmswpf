@@ -292,6 +292,10 @@ namespace rms_gui
             {
                 this.NavigationService.Navigate(new OrderDetailPage(selectedOrder));
             }
+            else
+            {
+                MessageBox.Show("Buyurtma ma'lumotlari topilmadi!");
+            }
         }
     }
 }

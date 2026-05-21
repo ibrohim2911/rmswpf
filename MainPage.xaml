@@ -167,7 +167,7 @@
                 </Grid>
 
                 <!-- Dynamic Orders List -->
-                <ScrollViewer Grid.Row="1" Margin="10,0,10,10" VerticalScrollBarVisibility="Auto">
+                <ScrollViewer Grid.Row="1" Margin="10,0,10,10" VerticalScrollBarVisibility="Auto" IsHitTestVisible="False">
                     <ItemsControl x:Name="OrdersListControl">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -181,7 +181,7 @@
                                 <!-- ORDER CARD TEMPLATE -->
                                 <Button Style="{StaticResource CompactOrderCardStyle}" Tag="{Binding}" Click="OrdersButton_Click">
                                     <!-- Inside the card, we bind to Order properties -->
-                                    <DockPanel LastChildFill="True">
+                                    <DockPanel LastChildFill="True" IsHitTestVisible="False">
                                         <Grid DockPanel.Dock="Bottom" Margin="0,5,0,0">
                                             <TextBlock Text="{Binding status}" Foreground="#9CA3AF" FontSize="11" VerticalAlignment="Bottom"/>
                                             <TextBlock Text="{Binding price, StringFormat={}{0:N0} som}" HorizontalAlignment="Right" Foreground="#10B981" FontSize="16" FontWeight="Bold"/>
