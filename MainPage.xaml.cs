@@ -31,6 +31,10 @@ namespace rms_gui
         {
             try
             {
+                // Ensure CSRF token is set before making requests
+                await ApiClient.EnsureCsrfTokenAsync();
+
+                // Load all initial data
                 await LoadWaitersAsync();
                 await LoadLocationsAsync();
                 await LoadOrdersAsync();
@@ -48,18 +52,38 @@ namespace rms_gui
             try
             {
                 var response = await ApiClient.Client.GetAsync("/api/users/users/");
-                if (!response.IsSuccessStatusCode) return;
+                if (!response.IsSuccessStatusCode) 
+                {
+                    System.Diagnostics.Debug.WriteLine($"Waiters API error: {response.StatusCode}");
+                    return;
+                }
 
-                // Django yuborgan original JSON matnini olib turamiz
                 string rawJson = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"Waiters JSON: {rawJson}");
+
                 var waiters = JsonSerializer.Deserialize<List<User>>(rawJson, JsonOptions);
 
-                if (WaitersListControl != null) WaitersListControl.ItemsSource = waiters;
+                if (WaitersListControl != null) 
+                {
+                    WaitersListControl.ItemsSource = waiters;
+                    System.Diagnostics.Debug.WriteLine($"Loaded {waiters?.Count ?? 0} waiters");
+                }
             }
-            catch (JsonException ex) // Agar C# o'qiy olmasa, aniq nima xatoligini ekranda ko'rsatamiz
+            catch (JsonException ex)
             {
-                string rawJson = await ApiClient.Client.GetStringAsync("/api/users/users/");
-                MessageBox.Show($"Xodimlar JSON xatosi!\n{ex.Message}\n\nDjango yuborgan data:\n{rawJson}");
+                try
+                {
+                    string rawJson = await ApiClient.Client.GetStringAsync("/api/users/users/");
+                    MessageBox.Show($"Xodimlar JSON xatosi!\n{ex.Message}\n\nDjango yuborgan data:\n{rawJson}");
+                }
+                catch (Exception debugEx)
+                {
+                    MessageBox.Show($"Xodimlar yuklanib bolmadi!\n{debugEx.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Waiters error: {ex.Message}");
             }
         }
 
@@ -68,17 +92,38 @@ namespace rms_gui
             try
             {
                 var response = await ApiClient.Client.GetAsync("/api/tables/locations/");
-                if (!response.IsSuccessStatusCode) return;
+                if (!response.IsSuccessStatusCode) 
+                {
+                    System.Diagnostics.Debug.WriteLine($"Locations API error: {response.StatusCode}");
+                    return;
+                }
 
                 string rawJson = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"Locations JSON: {rawJson}");
+
                 var locations = JsonSerializer.Deserialize<List<Location>>(rawJson, JsonOptions);
 
-                if (LocationsListControl != null) LocationsListControl.ItemsSource = locations;
+                if (LocationsListControl != null) 
+                {
+                    LocationsListControl.ItemsSource = locations;
+                    System.Diagnostics.Debug.WriteLine($"Loaded {locations?.Count ?? 0} locations");
+                }
             }
             catch (JsonException ex)
             {
-                string rawJson = await ApiClient.Client.GetStringAsync("/api/tables/locations/");
-                MessageBox.Show($"Zonalar JSON xatosi!\n{ex.Message}\n\nDjango yuborgan data:\n{rawJson}");
+                try
+                {
+                    string rawJson = await ApiClient.Client.GetStringAsync("/api/tables/locations/");
+                    MessageBox.Show($"Zonalar JSON xatosi!\n{ex.Message}\n\nDjango yuborgan data:\n{rawJson}");
+                }
+                catch (Exception debugEx)
+                {
+                    MessageBox.Show($"Zonalar yuklanib bolmadi!\n{debugEx.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Locations error: {ex.Message}");
             }
         }
 
@@ -91,19 +136,46 @@ namespace rms_gui
                 if (!string.IsNullOrEmpty(locationId)) url += $"&location={locationId}";
 
                 var response = await ApiClient.Client.GetAsync(url);
-                if (!response.IsSuccessStatusCode) return;
+                if (!response.IsSuccessStatusCode) 
+                {
+                    MessageBox.Show($"Server error: {response.StatusCode}");
+                    return;
+                }
 
                 string rawJson = await response.Content.ReadAsStringAsync();
+
+                // Log raw JSON for debugging
+                System.Diagnostics.Debug.WriteLine($"Raw JSON from backend: {rawJson}");
+
                 var orders = JsonSerializer.Deserialize<List<Order>>(rawJson, JsonOptions);
 
-                if (OrdersListControl != null) OrdersListControl.ItemsSource = orders;
-                if (TotalOrdersText != null) TotalOrdersText.Text = $"Jami: {orders?.Count ?? 0}";
+                if (OrdersListControl != null) 
+                {
+                    OrdersListControl.ItemsSource = orders;
+                    System.Diagnostics.Debug.WriteLine($"Loaded {orders?.Count ?? 0} orders successfully");
+                }
+
+                if (TotalOrdersText != null) 
+                {
+                    TotalOrdersText.Text = $"Jami: {orders?.Count ?? 0}";
+                }
             }
             catch (JsonException ex)
             {
                 string url = "/api/orders/orders/?status=open";
-                string rawJson = await ApiClient.Client.GetStringAsync(url);
-                MessageBox.Show($"Buyurtmalar JSON xatosi!\n{ex.Message}\n\nDjango yuborgan data:\n{rawJson}");
+                try
+                {
+                    string rawJson = await ApiClient.Client.GetStringAsync(url);
+                    MessageBox.Show($"Buyurtmalar JSON xatosi!\n{ex.Message}\n\nDjango yuborgan data:\n{rawJson}");
+                }
+                catch (Exception debugEx)
+                {
+                    MessageBox.Show($"Buyurtmalar yuklanib bolmadi!\n{debugEx.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Xato: {ex.Message}");
             }
         }
 
@@ -166,7 +238,18 @@ namespace rms_gui
 
         // --- 4. BOTTOM BAR NAVIGATION ---
 
-        private void OrdersButton_Click(object sender, RoutedEventArgs e) { /* Refresh orders if needed */ }
+        private async void OrdersButton_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Refresh all data when Orders button is clicked
+                await LoadOrdersAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error refreshing orders: " + ex.Message);
+            }
+        }
 
         private void CreateOrderButton_Click(object sender, RoutedEventArgs e)
         {
