@@ -214,36 +214,18 @@ namespace rms_gui
         private void CreateOrderButton_Click(object sender, RoutedEventArgs e)
         {
             // Open table selection window
-            TableSelectionWindow tableSelectionWindow = new TableSelectionWindow()
-            {
-                Owner = this
-            };
-
-            if (tableSelectionWindow.ShowDialog() == true)
-            {
-                var selectedTable = tableSelectionWindow.SelectedTable;
-                if (selectedTable != null)
-                {
-                    MessageBox.Show($"Order created for Table {selectedTable.id}", "Order Created");
-                    // TODO: Navigate to order detail window
-                }
-            }
+            this.NavigationService.Navigate(new TableSelectionPage());
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            // Show main content
-            UpdateBottomBarButtons(0);
+            if (!this.NavigationService.CanGoBack) this.NavigationService.GoBack();
         }
 
         private void ProfileButton_Click(object sender, RoutedEventArgs e)
         {
             // Open profile window
-            ProfileWindow profileWindow = new ProfileWindow()
-            {
-                Owner = this
-            };
-            profileWindow.ShowDialog();
+            this.NavigationService.Navigate(new ProfilePage());
         }
 
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
@@ -253,7 +235,8 @@ namespace rms_gui
 
             if (result == MessageBoxResult.Yes)
             {
-                this.Close();
+                this.NavigationService.Navigate(new LoginPage());
+                while(this.NavigationService.RemoveBackEntry != null) { } // Clear navigation history
             }
         }
 

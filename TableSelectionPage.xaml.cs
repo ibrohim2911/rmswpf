@@ -75,6 +75,40 @@ namespace rms_gui
         {
             await LoadTablesAsync();
         }
+        private void OrdersButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Show main orders view
+            this.NavigationService.Navigate(new MainPage());
+        }
+
+        private void CreateOrderButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Open table selection window
+            UpdateBottomBarButtons(0);
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!this.NavigationService.CanGoBack) this.NavigationService.GoBack();
+        }
+
+        private void ProfileButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Open profile window
+            this.NavigationService.Navigate(new ProfilePage());
+        }
+
+        private void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Logout and return to login window
+            var result = MessageBox.Show("Tizimdan chiqmoqchimisiz? (Are you sure you want to logout?)", "Logout", MessageBoxButton.YesNo);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                this.NavigationService.Navigate(new LoginPage());
+                while (this.NavigationService.RemoveBackEntry != null) { } // Clear navigation history
+            }
+        }
 
         private void Table_Click(object sender, RoutedEventArgs e)
         {
@@ -87,9 +121,11 @@ namespace rms_gui
                 return;
             }
 
-            SelectedTable = selectedTable;
-            this.DialogResult = true;
-            this.Close();
+            this.NavigationService.Navigate(new OrderDetailPage(selectedTable));
+        }
+        private void UpdateBottomBarButtons(int activeIndex)
+        {
+            // This would update the styling of bottom bar buttons to show which is active
         }
     }
 }

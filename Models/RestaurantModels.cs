@@ -52,7 +52,7 @@ namespace rms_gui.Models
         public bool availability { get; set; }
         [JsonPropertyName("tax")]
         public decimal? tax { get; set; }
-        [JsonPropertyName("location_id")]
+        [JsonPropertyName("location")]
         public int location_id { get; set; }
     }
 
@@ -85,9 +85,9 @@ namespace rms_gui.Models
     {
         [JsonPropertyName("id")]
         public int id { get; set; }
-        [JsonPropertyName("table_id")]
+        [JsonPropertyName("table")]
         public int table_id { get; set; }
-        [JsonPropertyName("waiter_id")]
+        [JsonPropertyName("waiter")]
         public int? waiter_id { get; set; }
         [JsonPropertyName("customer_quantity")]
         public int customer_quantity { get; set; }
@@ -110,7 +110,7 @@ namespace rms_gui.Models
         public int id { get; set; }
         [JsonPropertyName("order_id")]
         public int order_id { get; set; }
-        [JsonPropertyName("menu_item_id")]
+        [JsonPropertyName("menu_item")]
         public int menu_item_id { get; set; }
 
         [JsonPropertyName("menu_item")]

@@ -21,7 +21,7 @@ namespace rms_gui
         public LoginPage()
         {
             InitializeComponent();
-            Loaded += LoginPage_Loaded;
+            Loaded += (s, e) => InitializeControls();
         }
 
         private void InitializeControls()
@@ -78,9 +78,7 @@ namespace rms_gui
                 if (response.IsSuccessStatusCode)
                 {
                     var user = await response.Content.ReadFromJsonAsync<User>();
-                    var TableWindow = new TableSelectionWindow();
-                    this.DialogResult = true;
-                    this.Close();
+                    this.NavigationService.Navigate(new MainPage());
                 }
                 else
                 {
@@ -150,9 +148,7 @@ namespace rms_gui
                 if (response.IsSuccessStatusCode)
                 {
                     var user = await response.Content.ReadFromJsonAsync<User>();
-                    var TableWindow = new TableSelectionWindow();
-                    this.DialogResult = true;
-                    this.Close();
+                    this.NavigationService.Navigate(new MainPage());
                 }
                 else
                 {
