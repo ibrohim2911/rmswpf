@@ -7,12 +7,19 @@ using System.Windows;
 using System.Windows.Controls;
 using rms_gui.Services;
 using rms_gui.Models;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 // Removed 'using System.Windows.Controls.MenuItem' conflicts
 
 namespace rms_gui
 {
     public partial class OrderDetailPage : Page
     {
+        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString
+        };
         private Table _currentTable;
         private List<CartItem> _cart = new List<CartItem>();
 
@@ -35,7 +42,8 @@ namespace rms_gui
 
         private async Task LoadCategoriesAsync()
         {
-            var categories = await ApiClient.Client.GetFromJsonAsync<List<MenuCategory>>("/api/inventory/menu-categories/");
+
+            var categories = await ApiClient.Client.GetFromJsonAsync<List<MenuCategory>>("/api/inventory/menu-categories/", JsonOptions);
             CategoriesListControl.ItemsSource = categories;
         }
 
@@ -45,7 +53,7 @@ namespace rms_gui
             if (!string.IsNullOrEmpty(categoryId)) url += $"?menu_category={categoryId}";
 
             // Explicitly use your model here
-            var items = await ApiClient.Client.GetFromJsonAsync<List<rms_gui.Models.MenuItem>>(url);
+            var items = await ApiClient.Client.GetFromJsonAsync<List<rms_gui.Models.MenuItem>>(url, JsonOptions);
             MenuItemsListControl.ItemsSource = items;
         }
 
@@ -134,7 +142,9 @@ namespace rms_gui
             if (result == MessageBoxResult.Yes)
             {
                 this.NavigationService.Navigate(new LoginPage());
-                while (this.NavigationService.RemoveBackEntry != null) { } // Clear navigation history
+                Dispatcher.BeginInvoke(new Action(() => {
+                    while (this.NavigationService.CanGoBack) this.NavigationService.RemoveBackEntry();
+                }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             }
         }
 

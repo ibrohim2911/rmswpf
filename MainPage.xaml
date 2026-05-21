@@ -73,51 +73,6 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="10">
-                            <DockPanel LastChildFill="True">
-
-                                <!-- Card Footer: Time and Price -->
-                                <Grid DockPanel.Dock="Bottom" Margin="0,5,0,0">
-                                    <TextBlock Text="12:30 PM" Foreground="#9CA3AF" FontSize="11" VerticalAlignment="Bottom"/>
-                                    <TextBlock Text="$45.25" HorizontalAlignment="Right" Foreground="#10B981" FontSize="16" FontWeight="Bold"/>
-                                </Grid>
-                                <Border Height="1" Background="#333" DockPanel.Dock="Bottom" Margin="0,5"/>
-
-                                <!-- Card Header: Waiter, Table, Status -->
-                                <Grid DockPanel.Dock="Top" Margin="0,0,0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="John Doe" Foreground="White" FontSize="14" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Text="T-5, Balcony" Foreground="#9CA3AF" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                    <!-- Status Badge -->
-                                    <Border Grid.Column="1" Background="#064E3B" CornerRadius="4" Padding="4,2" VerticalAlignment="Top">
-                                        <TextBlock Text="Active" Foreground="#34D399" FontSize="10" FontWeight="Bold"/>
-                                    </Border>
-                                </Grid>
-                                <Border Height="1" Background="#333" DockPanel.Dock="Top" Margin="0,0,0,5"/>
-
-                                <!-- Items List -->
-                                <ScrollViewer VerticalScrollBarVisibility="Hidden">
-                                    <StackPanel>
-                                        <Grid Margin="0,0,0,4">
-                                            <TextBlock Text="Margherita Pizza" Foreground="#E5E7EB" FontSize="12" TextWrapping="Wrap" Margin="0,0,15,0"/>
-                                            <TextBlock Text="x2" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#9CA3AF" FontSize="12" FontWeight="Bold"/>
-                                        </Grid>
-                                        <Grid Margin="0,0,0,4">
-                                            <TextBlock Text="Caesar Salad" Foreground="#E5E7EB" FontSize="12" TextWrapping="Wrap" Margin="0,0,15,0"/>
-                                            <TextBlock Text="x1" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#9CA3AF" FontSize="12" FontWeight="Bold"/>
-                                        </Grid>
-                                        <Grid Margin="0,0,0,4">
-                                            <TextBlock Text="Espresso" Foreground="#E5E7EB" FontSize="12" TextWrapping="Wrap" Margin="0,0,15,0"/>
-                                            <TextBlock Text="x3" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#9CA3AF" FontSize="12" FontWeight="Bold"/>
-                                        </Grid>
-                                        <TextBlock Text="..." Foreground="#9CA3AF" FontSize="14" FontWeight="Bold" Margin="0,-5,0,0"/>
-                                    </StackPanel>
-                                </ScrollViewer>
-                            </DockPanel>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -238,8 +193,8 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
-                                                <TextBlock Text="{Binding waiter_id, StringFormat=Xodim ID: {0}}" Foreground="White" FontSize="14" FontWeight="Bold"/>
-                                                <TextBlock Text="{Binding table_id, StringFormat=Stol ID: {0}}" Foreground="#9CA3AF" FontSize="11" Margin="0,2,0,0"/>
+                                                <TextBlock Text="{Binding waiter_name, StringFormat=Xodim: {0}}" Foreground="White" FontSize="14" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding table_name, StringFormat=Stol: {0}}" Foreground="#9CA3AF" FontSize="11" Margin="0,2,0,0"/>
                                             </StackPanel>
                                             <Border Grid.Column="1" Background="#064E3B" CornerRadius="4" Padding="4,2" VerticalAlignment="Top">
                                                 <TextBlock Text="{Binding customer_quantity, StringFormat={}{0} kishi}" Foreground="#34D399" FontSize="10" FontWeight="Bold"/>
@@ -269,42 +224,7 @@
 
             <!-- DIVIDER -->
             <Border Grid.Column="1" Background="#333" />
-
-            <!-- RIGHT PANEL: ORDER CARDS -->
-            <Grid Grid.Column="2" Background="#121212">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0" Margin="15,20,15,10">
-                    <TextBlock Text="Aktiv Buyurtmalar" Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
-                    <TextBlock Text="Jami: 12" HorizontalAlignment="Right" Foreground="#9CA3AF" FontSize="16" VerticalAlignment="Center"/>
-                </Grid>
-
-                <!-- 12 Compact Cards: 4 columns. Row 1 & 2 fully visible, Row 3 peeking -->
-                <ScrollViewer Grid.Row="1" Margin="10,0,10,10" VerticalScrollBarVisibility="Auto">
-                    <WrapPanel Orientation="Horizontal">
-                        <!-- Row 1 -->
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-
-                        <!-- Row 2 -->
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-
-                        <!-- Row 3 (Peeking) -->
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
-                    </WrapPanel>
-                </ScrollViewer>
-            </Grid>
+    
         </Grid>
 
         <!-- BOTTOM BAR: NAVIGATION -->

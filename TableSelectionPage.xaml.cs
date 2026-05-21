@@ -106,7 +106,13 @@ namespace rms_gui
             if (result == MessageBoxResult.Yes)
             {
                 this.NavigationService.Navigate(new LoginPage());
-                while (this.NavigationService.RemoveBackEntry != null) { } // Clear navigation history
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    while (this.NavigationService.CanGoBack)
+                    {
+                        this.NavigationService.RemoveBackEntry();
+                    }
+                }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             }
         }
 

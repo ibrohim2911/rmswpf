@@ -106,6 +106,12 @@ namespace rms_gui.Models
         public List<OrderItem> items { get; set; }
         [JsonPropertyName("payments")]
         public List<OrderPayment> payments { get; set; }
+        [JsonPropertyName("waiter_name")]
+        public string waiter_name { get; set; }
+        [JsonPropertyName("table_name")]
+        public string table_name { get; set; }
+        [JsonPropertyName("location_name")]
+        public string location_name { get; set; }
     }
 
     public class OrderItem
