@@ -1,0 +1,196 @@
+<Window x:Class="rms_gui.TableSelectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Table Selection" Height="768" Width="1080"
+        WindowStyle="None" WindowState="Maximized"
+        Background="#121212" Foreground="White" FontFamily="Segoe UI">
+
+	<Window.Resources>
+		<!-- Style for Bottom Navigation Buttons -->
+		<Style x:Key="NavButtonStyle" TargetType="Button">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#9CA3AF"/>
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Margin" Value="5"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border Background="{TemplateBinding Background}" CornerRadius="8">
+							<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Background" Value="#2A2A2E"/>
+								<Setter Property="Foreground" Value="White"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<!-- Style for Vertical Location Filter Buttons (Left Panel) -->
+		<Style x:Key="LocationButtonStyle" TargetType="Button">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#9CA3AF"/>
+			<Setter Property="FontSize" Value="16"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="20,18"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+							<ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Background" Value="#2A2A30"/>
+								<Setter Property="Foreground" Value="White"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+		<!-- Square Style used for Tables (Same as Menu Items) -->
+		<Style x:Key="TableCardStyle" TargetType="Button">
+			<Setter Property="Background" Value="#1E1E24"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Margin" Value="6"/>
+			<Setter Property="Width" Value="100"/>
+			<Setter Property="Height" Value="100"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border Background="{TemplateBinding Background}" CornerRadius="10" Padding="8">
+							<TextBlock Text="{TemplateBinding Content}" TextWrapping="Wrap" TextAlignment="Center"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       FontWeight="Bold" FontSize="16" LineHeight="20"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Background" Value="#3B82F6"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Window.Resources>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*" />
+			<RowDefinition Height="70" />
+			<!-- Bottom Bar Area -->
+		</Grid.RowDefinitions>
+
+		<!-- MAIN CONTENT AREA -->
+		<Grid Grid.Row="0">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="2.5*" />
+				<!-- Location Filters (Smaller) -->
+				<ColumnDefinition Width="2" />
+				<!-- Divider -->
+				<ColumnDefinition Width="7.5*" />
+				<!-- Tables Grid (Most space) -->
+			</Grid.ColumnDefinitions>
+
+			<!-- LEFT PANEL: LOCATION FILTERS -->
+			<Grid Grid.Column="0" Background="#1A1A1D">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="*"/>
+				</Grid.RowDefinitions>
+
+				<TextBlock Grid.Row="0" Text="ZONALAR / LOCATIONS" Foreground="White" FontWeight="Bold" FontSize="18" Margin="20,25,20,15"/>
+				<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+					<StackPanel>
+						<Button Style="{StaticResource LocationButtonStyle}" Content="Barcha zonalar (All)" Click="ClearLocationFilter_Click"/>
+
+						<ItemsControl x:Name="LocationsListControl">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate>
+									<Button Style="{StaticResource LocationButtonStyle}" Content="{Binding name}" Tag="{Binding id}" Click="LocationFilter_Click"/>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</StackPanel>
+				</ScrollViewer>
+
+
+			</Grid>
+
+			<!-- DIVIDER -->
+			<Border Grid.Column="1" Background="#333" />
+
+			<!-- RIGHT PANEL: TABLES -->
+			<Grid Grid.Column="2" Background="#121212">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="*"/>
+				</Grid.RowDefinitions>
+
+				<!-- Header & Status Legend -->
+				<Grid Grid.Row="0" Margin="20,20,20,10">
+					<TextBlock Text="Asosiy zal - Stollar" Foreground="White" FontSize="22" FontWeight="Bold" VerticalAlignment="Center"/>
+
+					<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+						<Border Width="15" Height="15" Background="#1E1E24" CornerRadius="4" Margin="0,0,5,0"/>
+						<TextBlock Text="Bo'sh (Free)" Foreground="#9CA3AF" FontSize="14" Margin="0,0,15,0" VerticalAlignment="Center"/>
+
+						<Border Width="15" Height="15" Background="#991B1B" CornerRadius="4" Margin="0,0,5,0"/>
+						<TextBlock Text="Band (Occupied)" Foreground="#9CA3AF" FontSize="14" VerticalAlignment="Center"/>
+					</StackPanel>
+				</Grid>
+
+				<!-- Tables Grid -->
+				<ScrollViewer Grid.Row="1" Margin="15,10,15,15" VerticalScrollBarVisibility="Auto">
+					<ItemsControl x:Name="TablesListControl">
+						<ItemsControl.ItemsPanel>
+							<ItemsPanelTemplate>
+								<WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" />
+							</ItemsPanelTemplate>
+						</ItemsControl.ItemsPanel>
+
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Button Content="{Binding name}" Tag="{Binding}" Click="Table_Click">
+									<Button.Style>
+										<Style TargetType="Button" BasedOn="{StaticResource TableCardStyle}">
+											<Style.Triggers>
+												<DataTrigger Binding="{Binding availability}" Value="False">
+													<Setter Property="Background" Value="#991B1B"/>
+													<Setter Property="Foreground" Value="#FCA5A5"/>
+												</DataTrigger>
+											</Style.Triggers>
+										</Style>
+									</Button.Style>
+								</Button>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+			</Grid>
+		</Grid>
+
+		<!-- BOTTOM BAR: NAVIGATION -->
+		<Border Grid.Row="1" Background="#1A1A1D" BorderBrush="#333" BorderThickness="0,1,0,0">
+			<UniformGrid Columns="5" Margin="5">
+				<Button Style="{StaticResource NavButtonStyle}" Content="📋 Orders" />
+
+				<!-- ACTIVE TAB: Create Order -->
+				<Button Style="{StaticResource NavButtonStyle}" Content="➕ Create Order" Foreground="White" Background="#3B82F6" />
+
+				<Button Style="{StaticResource NavButtonStyle}" Content="↩️ Back" />
+				<Button Style="{StaticResource NavButtonStyle}" Content="👤 Profile" />
+				<Button Style="{StaticResource NavButtonStyle}" Content="🚪 Log out" Foreground="#F87171"/>
+			</UniformGrid>
+		</Border>
+	</Grid>
+</Window>

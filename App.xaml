@@ -1,0 +1,8 @@
+﻿<Application x:Class="rms_gui.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:rms_gui">
+    <Application.Resources>
+
+    </Application.Resources>
+</Application>

@@ -1,0 +1,274 @@
+﻿<Window x:Class="rms_gui.OrderDetailWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="POS Screen" Height="768" Width="1080"
+        WindowStyle="None" WindowState="Maximized"
+        Background="#121212" Foreground="White" FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <!-- Style for Bottom Navigation Buttons -->
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2A2A2E"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style for Category Tabs -->
+        <Style x:Key="CategoryButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,15"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style for Square Product Cards (No Image, Text Wraps) -->
+        <Style x:Key="ProductCardStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1E1E24"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="6"/>
+            <Setter Property="Width" Value="100"/>
+            <Setter Property="Height" Value="100"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="10" Padding="8">
+                            <TextBlock Text="{TemplateBinding Content}" TextWrapping="Wrap" TextAlignment="Center" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                       FontWeight="SemiBold" FontSize="14" LineHeight="18"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2563EB"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style for Small Action Buttons inside Cart Items -->
+        <Style x:Key="SmallIconButtonStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style for Square Order Actions (Bottom of Cart) -->
+        <Style x:Key="SquareOrderActionStyle" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Height" Value="75"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="10" Padding="5">
+                            <TextBlock Text="{TemplateBinding Content}" TextWrapping="Wrap" TextAlignment="Center" 
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="70" />
+            <!-- Bottom Bar Area -->
+        </Grid.RowDefinitions>
+
+        <!-- MAIN CONTENT AREA -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3.5*" />
+                <!-- Cart / Order Area -->
+                <ColumnDefinition Width="2" />
+                <!-- Divider -->
+                <ColumnDefinition Width="6.5*" />
+                <!-- Products Area -->
+            </Grid.ColumnDefinitions>
+
+            <!-- LEFT PANEL: CART -->
+            <Grid Grid.Column="0" Background="#1A1A1D">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <StackPanel Grid.Row="0" Margin="15,15,15,10">
+                    <Grid>
+                        <TextBlock Text="BUYURTMA #8" Foreground="White" FontWeight="Bold" FontSize="20"/>
+                        <TextBlock Text="Ibrohim" HorizontalAlignment="Right" Foreground="#3B82F6" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                    </Grid>
+                    <Grid Margin="0,5,0,0">
+                        <TextBlock Text="17/05/2026, 02:30:20" Foreground="#9CA3AF" FontSize="12"/>
+                        <TextBlock x:Name="TableHeaderText" HorizontalAlignment="Right" Text="Stol:" Foreground="#9CA3AF" FontSize="14"/>
+                    </Grid>
+                </StackPanel>
+
+                <Separator Grid.Row="0" VerticalAlignment="Bottom" Background="#333" Margin="15,0"/>
+
+                <!-- Order Items -->
+                <ItemsControl x:Name="CartListControl">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#2A2A30" CornerRadius="6" Padding="10,8" Margin="5,3">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="70"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0" Text="{Binding MenuItem.name}" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="15" TextWrapping="Wrap"/>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0">
+                                        <Button Content="-" Tag="{Binding}" Click="DecreaseQty_Click" Background="#4B5563" Style="{StaticResource SmallIconButtonStyle}"/>
+                                        <TextBlock Text="{Binding Quantity}" Width="25" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                                        <Button Content="+" Tag="{Binding}" Click="IncreaseQty_Click" Background="#3B82F6" Style="{StaticResource SmallIconButtonStyle}"/>
+                                        <Button Content="🗑️" Tag="{Binding}" Click="RemoveItem_Click" Background="#DC2626" Style="{StaticResource SmallIconButtonStyle}" Margin="8,2,2,2"/>
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="2" Text="{Binding TotalPrice, StringFormat={}{0:N0}}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#9CA3AF" FontSize="14"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <!-- Order Footer & Action Buttons -->
+                <Border Grid.Row="2" Background="#222226" Padding="15" CornerRadius="15,15,0,0">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,5">
+                            <TextBlock Text="QQS (10%):" Foreground="#9CA3AF" FontSize="14"/>
+                            <TextBlock Text="2,900 so'm" HorizontalAlignment="Right" Foreground="#9CA3AF" FontSize="14"/>
+                        </Grid>
+                        <Grid Margin="0,0,0,15">
+                            <TextBlock Text="Jami summa:" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
+                            <TextBlock x:Name="TotalPriceText" Text="0 so'm" HorizontalAlignment="Right" Foreground="#10B981" FontSize="22" FontWeight="Bold"/>
+                        </Grid>
+
+                        <UniformGrid Columns="4" Rows="1">
+                            <Button Content="Tozalash" Background="#DC2626" Style="{StaticResource SquareOrderActionStyle}"/>
+                            <Button Content="Dastlabki Chek" Background="#D97706" Style="{StaticResource SquareOrderActionStyle}"/>
+                            <Button Content="Saqlash" Background="#2563EB" Style="{StaticResource SquareOrderActionStyle}"/>
+                            <Button Content="To'lash" Background="#10B981" Style="{StaticResource SquareOrderActionStyle}"/>
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- DIVIDER -->
+            <Border Grid.Column="1" Background="#333" />
+
+            <!-- RIGHT PANEL: PRODUCTS -->
+            <Grid Grid.Column="2" Background="#121212">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <ItemsControl x:Name="CategoriesListControl">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource CategoryButtonStyle}" Content="{Binding name}" Tag="{Binding id}" Click="Category_Click"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+
+
+                <!-- Search Box -->
+                <Border Grid.Row="1" Margin="15,10" Background="#1E1E24" CornerRadius="8">
+                    <TextBox Background="Transparent" Foreground="White" BorderThickness="0" Padding="12" FontSize="15" Text="Qidirish..."/>
+                </Border>
+
+                <!-- Square Products Grid -->
+                <ItemsControl x:Name="MenuItemsListControl">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!-- Add to Cart when clicked -->
+                            <Button Style="{StaticResource ProductCardStyle}" Content="{Binding name}" Tag="{Binding}" Click="MenuItem_Click"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+
+            </Grid>
+        </Grid>
+
+        <!-- BOTTOM BAR: NAVIGATION -->
+        <Border Grid.Row="1" Background="#1A1A1D" BorderBrush="#333" BorderThickness="0,1,0,0">
+            <UniformGrid Columns="5" Margin="5">
+                <Button Style="{StaticResource NavButtonStyle}" Content="📋 Orders" />
+                <Button Style="{StaticResource NavButtonStyle}" Content="➕ Create Order" Foreground="White" Background="#2A2A30" />
+                <Button Style="{StaticResource NavButtonStyle}" Content="↩️ Back" />
+                <Button Style="{StaticResource NavButtonStyle}" Content="👤 Profile" />
+                <Button Style="{StaticResource NavButtonStyle}" Content="🚪 Log out" Foreground="#F87171"/>
+            </UniformGrid>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,325 @@
+<Window x:Class="rms_gui.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:rms_gui"
+        mc:Ignorable="d"
+        Title="RMS - Waiter Kiosk" 
+        WindowStyle="None" 
+        WindowState="Maximized"
+        ResizeMode="NoResize"
+        Topmost="True"
+        Background="#121212" FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <!-- Style for Bottom Navigation Buttons -->
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2A2A2E"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Style for Filter List Buttons -->
+        <Style x:Key="FilterButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,12"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="6" Margin="10,2">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2A2A30"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Compact Order Card Style -->
+        <Style x:Key="CompactOrderCardStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1E1E24"/>
+            <Setter Property="BorderBrush" Value="#333"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Width" Value="180"/>
+            <Setter Property="Height" Value="220"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="10">
+                            <DockPanel LastChildFill="True">
+
+                                <!-- Card Footer: Time and Price -->
+                                <Grid DockPanel.Dock="Bottom" Margin="0,5,0,0">
+                                    <TextBlock Text="12:30 PM" Foreground="#9CA3AF" FontSize="11" VerticalAlignment="Bottom"/>
+                                    <TextBlock Text="$45.25" HorizontalAlignment="Right" Foreground="#10B981" FontSize="16" FontWeight="Bold"/>
+                                </Grid>
+                                <Border Height="1" Background="#333" DockPanel.Dock="Bottom" Margin="0,5"/>
+
+                                <!-- Card Header: Waiter, Table, Status -->
+                                <Grid DockPanel.Dock="Top" Margin="0,0,0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="John Doe" Foreground="White" FontSize="14" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="T-5, Balcony" Foreground="#9CA3AF" FontSize="11" TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <!-- Status Badge -->
+                                    <Border Grid.Column="1" Background="#064E3B" CornerRadius="4" Padding="4,2" VerticalAlignment="Top">
+                                        <TextBlock Text="Active" Foreground="#34D399" FontSize="10" FontWeight="Bold"/>
+                                    </Border>
+                                </Grid>
+                                <Border Height="1" Background="#333" DockPanel.Dock="Top" Margin="0,0,0,5"/>
+
+                                <!-- Items List -->
+                                <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,4">
+                                            <TextBlock Text="Margherita Pizza" Foreground="#E5E7EB" FontSize="12" TextWrapping="Wrap" Margin="0,0,15,0"/>
+                                            <TextBlock Text="x2" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#9CA3AF" FontSize="12" FontWeight="Bold"/>
+                                        </Grid>
+                                        <Grid Margin="0,0,0,4">
+                                            <TextBlock Text="Caesar Salad" Foreground="#E5E7EB" FontSize="12" TextWrapping="Wrap" Margin="0,0,15,0"/>
+                                            <TextBlock Text="x1" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#9CA3AF" FontSize="12" FontWeight="Bold"/>
+                                        </Grid>
+                                        <Grid Margin="0,0,0,4">
+                                            <TextBlock Text="Espresso" Foreground="#E5E7EB" FontSize="12" TextWrapping="Wrap" Margin="0,0,15,0"/>
+                                            <TextBlock Text="x3" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#9CA3AF" FontSize="12" FontWeight="Bold"/>
+                                        </Grid>
+                                        <TextBlock Text="..." Foreground="#9CA3AF" FontSize="14" FontWeight="Bold" Margin="0,-5,0,0"/>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </DockPanel>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="70" />
+            <!-- Bottom Bar Area -->
+        </Grid.RowDefinitions>
+
+        <!-- MAIN CONTENT AREA -->
+        <Grid Grid.Row="0" x:Name="MainContent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2.5*" />
+                <!-- Filters Area -->
+                <ColumnDefinition Width="2" />
+                <!-- Divider -->
+                <ColumnDefinition Width="7.5*" />
+                <!-- Order Cards Area -->
+            </Grid.ColumnDefinitions>
+            <!-- LEFT PANEL: FILTERS (One at a time) -->
+            <Grid Grid.Column="0" Background="#1A1A1D">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="FILTRLAR" Foreground="White" FontWeight="Bold" FontSize="18" Margin="20,25,20,15"/>
+
+                <UniformGrid Grid.Row="1" Columns="2" Margin="10,0,10,15">
+                    <Button x:Name="WaitersTabBtn" Content="Xodimlar" Foreground="White" Background="#3B82F6" FontSize="14" FontWeight="Bold" BorderThickness="0" Padding="10" Margin="5" Click="WaitersTab_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                    <Button x:Name="LocationsTabBtn" Content="Zonalar" Foreground="#9CA3AF" Background="#2A2A30" FontSize="14" FontWeight="Bold" BorderThickness="0" Padding="10" Margin="5" Click="LocationsTab_Click">
+                        <Button.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="6"/>
+                            </Style>
+                        </Button.Resources>
+                    </Button>
+                </UniformGrid>
+
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,0,0,20">
+                        <!-- All Filter Button -->
+                        <Button Style="{StaticResource FilterButtonStyle}" Content="Barcha (All)" Click="ClearFilters_Click"/>
+
+                        <!-- Dynamic Waiters List -->
+                        <ItemsControl x:Name="WaitersListControl">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource FilterButtonStyle}" Content="{Binding first_name}" Tag="{Binding id}" Click="WaiterFilter_Click"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <!-- Dynamic Locations List (Hidden by default) -->
+                        <ItemsControl x:Name="LocationsListControl" Visibility="Collapsed">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource FilterButtonStyle}" Content="{Binding name}" Tag="{Binding id}" Click="LocationFilter_Click"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- DIVIDER -->
+            <Border Grid.Column="1" Background="#333" />
+
+            <!-- RIGHT PANEL: ORDER CARDS -->
+            <Grid Grid.Column="2" Background="#121212">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="15,20,15,10">
+                    <TextBlock Text="Aktiv Buyurtmalar" Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="TotalOrdersText" Text="Jami: 0" HorizontalAlignment="Right" Foreground="#9CA3AF" FontSize="16" VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- Dynamic Orders List -->
+                <ScrollViewer Grid.Row="1" Margin="10,0,10,10" VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="OrdersListControl">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <!-- This WrapPanel ensures cards go left-to-right, then down to the next row -->
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <!-- ORDER CARD TEMPLATE -->
+                                <Button Style="{StaticResource CompactOrderCardStyle}" Tag="{Binding id}">
+                                    <!-- Inside the card, we bind to Order properties -->
+                                    <DockPanel LastChildFill="True">
+                                        <Grid DockPanel.Dock="Bottom" Margin="0,5,0,0">
+                                            <TextBlock Text="{Binding status}" Foreground="#9CA3AF" FontSize="11" VerticalAlignment="Bottom"/>
+                                            <TextBlock Text="{Binding price, StringFormat={}{0:N0} som}" HorizontalAlignment="Right" Foreground="#10B981" FontSize="16" FontWeight="Bold"/>
+                                        </Grid>
+                                        <Border Height="1" Background="#333" DockPanel.Dock="Bottom" Margin="0,5"/>
+
+                                        <Grid DockPanel.Dock="Top" Margin="0,0,0,5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding waiter_id, StringFormat=Xodim ID: {0}}" Foreground="White" FontSize="14" FontWeight="Bold"/>
+                                                <TextBlock Text="{Binding table_id, StringFormat=Stol ID: {0}}" Foreground="#9CA3AF" FontSize="11" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                            <Border Grid.Column="1" Background="#064E3B" CornerRadius="4" Padding="4,2" VerticalAlignment="Top">
+                                                <TextBlock Text="{Binding customer_quantity, StringFormat={}{0} kishi}" Foreground="#34D399" FontSize="10" FontWeight="Bold"/>
+                                            </Border>
+                                        </Grid>
+                                        <Border Height="1" Background="#333" DockPanel.Dock="Top" Margin="0,0,0,5"/>
+
+                                        <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                                            <ItemsControl ItemsSource="{Binding items}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,0,0,4">
+                                                            <TextBlock Text="{Binding menu_item_id, StringFormat=Taom ID: {0}}" Foreground="#E5E7EB" FontSize="12" TextWrapping="Wrap" Margin="0,0,15,0"/>
+                                                            <TextBlock Text="{Binding quantity, StringFormat=x{0}}" HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#9CA3AF" FontSize="12" FontWeight="Bold"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </ScrollViewer>
+                                    </DockPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- DIVIDER -->
+            <Border Grid.Column="1" Background="#333" />
+
+            <!-- RIGHT PANEL: ORDER CARDS -->
+            <Grid Grid.Column="2" Background="#121212">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="15,20,15,10">
+                    <TextBlock Text="Aktiv Buyurtmalar" Foreground="White" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+                    <TextBlock Text="Jami: 12" HorizontalAlignment="Right" Foreground="#9CA3AF" FontSize="16" VerticalAlignment="Center"/>
+                </Grid>
+
+                <!-- 12 Compact Cards: 4 columns. Row 1 & 2 fully visible, Row 3 peeking -->
+                <ScrollViewer Grid.Row="1" Margin="10,0,10,10" VerticalScrollBarVisibility="Auto">
+                    <WrapPanel Orientation="Horizontal">
+                        <!-- Row 1 -->
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+
+                        <!-- Row 2 -->
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+
+                        <!-- Row 3 (Peeking) -->
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+                        <Button Style="{StaticResource CompactOrderCardStyle}"/>
+                    </WrapPanel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
+        <!-- BOTTOM BAR: NAVIGATION -->
+        <Border Grid.Row="1" Background="#1A1A1D" BorderBrush="#333" BorderThickness="0,1,0,0">
+            <UniformGrid Columns="5" Margin="5">
+                <!-- ACTIVE TAB: Orders -->
+                <Button Style="{StaticResource NavButtonStyle}" Content="📋 Orders" Foreground="White" Background="#3B82F6" Click="OrdersButton_Click"/>
+                <Button Style="{StaticResource NavButtonStyle}" Content="➕ Create Order" Click="CreateOrderButton_Click"/>
+                <Button Style="{StaticResource NavButtonStyle}" Content="↩️ Back" Click="BackButton_Click"/>
+                <Button Style="{StaticResource NavButtonStyle}" Content="👤 Profile" Click="ProfileButton_Click"/>
+                <Button Style="{StaticResource NavButtonStyle}" Content="🚪 Log out" Foreground="#F87171" Click="LogoutButton_Click"/>
+            </UniformGrid>
+        </Border>
+    </Grid>
+</Window>
