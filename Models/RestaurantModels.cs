@@ -17,7 +17,7 @@ namespace rms_gui.Models
     public class User
     {
         [JsonPropertyName("id")]
-        public int id { get; set; }
+        public string id { get; set; } // Updated to string for UUID
         [JsonPropertyName("username")]
         public string username { get; set; }
         [JsonPropertyName("first_name")]
@@ -30,7 +30,7 @@ namespace rms_gui.Models
     public class Location
     {
         [JsonPropertyName("id")]
-        public int id { get; set; }
+        public string id { get; set; } // Updated to string for UUID
         [JsonPropertyName("name")]
         public string name { get; set; }
         [JsonPropertyName("default_tax")]
@@ -43,7 +43,7 @@ namespace rms_gui.Models
     public class Table
     {
         [JsonPropertyName("id")]
-        public int id { get; set; }
+        public string id { get; set; } // Updated to string for UUID
         [JsonPropertyName("name")]
         public string name { get; set; }
         [JsonPropertyName("capacity")]
@@ -52,15 +52,16 @@ namespace rms_gui.Models
         public bool availability { get; set; }
         [JsonPropertyName("tax")]
         public decimal? tax { get; set; }
-        [JsonPropertyName("location")]
-        public int location_id { get; set; }
+
+        [JsonPropertyName("location.id")] // Fixed mapping
+        public string location_id { get; set; } // Updated to string for UUID
     }
 
     // --- MENU MODELS ---
     public class MenuCategory
     {
         [JsonPropertyName("id")]
-        public int id { get; set; }
+        public string id { get; set; } // Updated to string for UUID
         [JsonPropertyName("name")]
         public string name { get; set; }
 
@@ -71,7 +72,7 @@ namespace rms_gui.Models
     public class MenuItem
     {
         [JsonPropertyName("id")]
-        public int id { get; set; }
+        public string id { get; set; } // Updated to string for UUID
         [JsonPropertyName("name")]
         public string name { get; set; }
         [JsonPropertyName("description")]
@@ -84,11 +85,14 @@ namespace rms_gui.Models
     public class Order
     {
         [JsonPropertyName("id")]
-        public int id { get; set; }
-        [JsonPropertyName("table")]
-        public int table_id { get; set; }
-        [JsonPropertyName("waiter")]
-        public int? waiter_id { get; set; }
+        public string id { get; set; } // Updated to string for UUID
+
+        [JsonPropertyName("table")] // Fixed mapping
+        public string table_id { get; set; } // Updated to string for UUID
+
+        [JsonPropertyName("waiter")] // Fixed mapping
+        public string waiter_id { get; set; } // Updated to string for UUID
+
         [JsonPropertyName("customer_quantity")]
         public int customer_quantity { get; set; }
         [JsonPropertyName("status")]
@@ -107,14 +111,15 @@ namespace rms_gui.Models
     public class OrderItem
     {
         [JsonPropertyName("id")]
-        public int id { get; set; }
-        [JsonPropertyName("order_id")]
-        public int order_id { get; set; }
-        [JsonPropertyName("menu_item")]
-        public int menu_item_id { get; set; }
+        public string id { get; set; } // Updated to string for UUID
 
-        [JsonPropertyName("menu_item")]
-        public MenuItem menu_item { get; set; }
+        [JsonPropertyName("order")] // Fixed mapping
+        public string order_id { get; set; } // Updated to string for UUID
+
+        [JsonPropertyName("menu_item")] // Fixed mapping
+        public string menu_item_id { get; set; } // Updated to string for UUID
+
+        // REMOVED the duplicate MenuItem object property that caused the collision!
 
         [JsonPropertyName("quantity")]
         public int quantity { get; set; }
@@ -127,9 +132,11 @@ namespace rms_gui.Models
     public class OrderPayment
     {
         [JsonPropertyName("id")]
-        public int id { get; set; }
-        [JsonPropertyName("order_id")]
-        public int order_id { get; set; }
+        public string id { get; set; } // Updated to string for UUID
+
+        [JsonPropertyName("order")] // Fixed mapping
+        public string order_id { get; set; } // Updated to string for UUID
+
         [JsonPropertyName("amount")]
         public decimal amount { get; set; }
         [JsonPropertyName("method")]

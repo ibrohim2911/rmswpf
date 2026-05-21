@@ -4,31 +4,31 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using rms_gui.Services;
 using rms_gui.Models;
 
 namespace rms_gui
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainPage : Page
     {
+        // 1. JSON xatoliklarini oldini olish uchun C# ga "bo'shroq" ishlashni buyuramiz
+        private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            NumberHandling = JsonNumberHandling.AllowReadingFromString // "1" matnini int ga aylantiradi
+        };
+
         public MainPage()
         {
             InitializeComponent();
             this.Loaded += MainWindow_Loaded;
         }
+
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            // When window opens, load all data initially
             try
             {
                 await LoadWaitersAsync();
@@ -48,23 +48,18 @@ namespace rms_gui
             try
             {
                 var response = await ApiClient.Client.GetAsync("/api/users/users/");
+                if (!response.IsSuccessStatusCode) return;
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    string errorContent = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show($"Xodimlarni yuklashda xatolik ({response.StatusCode}): {errorContent}");
-                    return;
-                }
+                // Django yuborgan original JSON matnini olib turamiz
+                string rawJson = await response.Content.ReadAsStringAsync();
+                var waiters = JsonSerializer.Deserialize<List<User>>(rawJson, JsonOptions);
 
-                var waiters = await response.Content.ReadFromJsonAsync<List<User>>();
-                if (WaitersListControl != null)
-                {
-                    WaitersListControl.ItemsSource = waiters;
-                }
+                if (WaitersListControl != null) WaitersListControl.ItemsSource = waiters;
             }
-            catch (Exception ex)
+            catch (JsonException ex) // Agar C# o'qiy olmasa, aniq nima xatoligini ekranda ko'rsatamiz
             {
-                MessageBox.Show("Xodimlarni yuklashda xatolik: " + ex.Message);
+                string rawJson = await ApiClient.Client.GetStringAsync("/api/users/users/");
+                MessageBox.Show($"Xodimlar JSON xatosi!\n{ex.Message}\n\nDjango yuborgan data:\n{rawJson}");
             }
         }
 
@@ -73,66 +68,42 @@ namespace rms_gui
             try
             {
                 var response = await ApiClient.Client.GetAsync("/api/tables/locations/");
+                if (!response.IsSuccessStatusCode) return;
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    string errorContent = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show($"Zonalarni yuklashda xatolik ({response.StatusCode}): {errorContent}");
-                    return;
-                }
+                string rawJson = await response.Content.ReadAsStringAsync();
+                var locations = JsonSerializer.Deserialize<List<Location>>(rawJson, JsonOptions);
 
-                var locations = await response.Content.ReadFromJsonAsync<List<Location>>();
-                if (LocationsListControl != null)
-                {
-                    LocationsListControl.ItemsSource = locations;
-                }
+                if (LocationsListControl != null) LocationsListControl.ItemsSource = locations;
             }
-            catch (Exception ex)
+            catch (JsonException ex)
             {
-                MessageBox.Show("Zonalarni yuklashda xatolik: " + ex.Message);
+                string rawJson = await ApiClient.Client.GetStringAsync("/api/tables/locations/");
+                MessageBox.Show($"Zonalar JSON xatosi!\n{ex.Message}\n\nDjango yuborgan data:\n{rawJson}");
             }
         }
 
-        // Central method to load orders. Applies filters if IDs are provided.
-        private async Task LoadOrdersAsync(int? waiterId = null, int? locationId = null)
+        private async Task LoadOrdersAsync(string waiterId = null, string locationId = null)
         {
             try
             {
-                // Build the URL with query parameters. By default, only get 'open' status orders.
                 string url = "/api/orders/orders/?status=open";
-
-                if (waiterId.HasValue)
-                    url += $"&waiter={waiterId.Value}";
-
-                if (locationId.HasValue)
-                    url += $"&location={locationId.Value}";
+                if (!string.IsNullOrEmpty(waiterId)) url += $"&waiter={waiterId}";
+                if (!string.IsNullOrEmpty(locationId)) url += $"&location={locationId}";
 
                 var response = await ApiClient.Client.GetAsync(url);
+                if (!response.IsSuccessStatusCode) return;
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    string errorContent = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show($"Buyurtmalarni yuklashda xatolik ({response.StatusCode}): {errorContent}");
-                    return;
-                }
+                string rawJson = await response.Content.ReadAsStringAsync();
+                var orders = JsonSerializer.Deserialize<List<Order>>(rawJson, JsonOptions);
 
-                // Fetch from Django
-                var orders = await response.Content.ReadFromJsonAsync<List<Order>>();
-
-                // Bind to the UI
-                if (OrdersListControl != null)
-                {
-                    OrdersListControl.ItemsSource = orders;
-                }
-
-                if (TotalOrdersText != null)
-                {
-                    TotalOrdersText.Text = $"Jami: {orders?.Count ?? 0}";
-                }
+                if (OrdersListControl != null) OrdersListControl.ItemsSource = orders;
+                if (TotalOrdersText != null) TotalOrdersText.Text = $"Jami: {orders?.Count ?? 0}";
             }
-            catch (Exception ex)
+            catch (JsonException ex)
             {
-                MessageBox.Show("Buyurtmalarni yuklashda xatolik: " + ex.Message);
+                string url = "/api/orders/orders/?status=open";
+                string rawJson = await ApiClient.Client.GetStringAsync(url);
+                MessageBox.Show($"Buyurtmalar JSON xatosi!\n{ex.Message}\n\nDjango yuborgan data:\n{rawJson}");
             }
         }
 
@@ -141,34 +112,26 @@ namespace rms_gui
         private async void WaiterFilter_Click(object sender, RoutedEventArgs e)
         {
             var btn = sender as Button;
-            if (btn?.Tag is int waiterId)
-            {
-                await LoadOrdersAsync(waiterId: waiterId);
-            }
+            if (btn?.Tag is string waiterId) await LoadOrdersAsync(waiterId: waiterId);
         }
 
         private async void LocationFilter_Click(object sender, RoutedEventArgs e)
         {
             var btn = sender as Button;
-            if (btn?.Tag is int locationId)
-            {
-                await LoadOrdersAsync(locationId: locationId);
-            }
+            if (btn?.Tag is string locationId) await LoadOrdersAsync(locationId: locationId);
         }
 
         private async void ClearFilters_Click(object sender, RoutedEventArgs e)
         {
-            await LoadOrdersAsync(); // Loads all active orders without filters
+            await LoadOrdersAsync();
         }
 
         // --- 3. UI TAB SWITCHING (Waiters vs Locations) ---
 
         private void WaitersTab_Click(object sender, RoutedEventArgs e)
         {
-            if (WaitersListControl != null)
-                WaitersListControl.Visibility = Visibility.Visible;
-            if (LocationsListControl != null)
-                LocationsListControl.Visibility = Visibility.Collapsed;
+            if (WaitersListControl != null) WaitersListControl.Visibility = Visibility.Visible;
+            if (LocationsListControl != null) LocationsListControl.Visibility = Visibility.Collapsed;
 
             if (WaitersTabBtn != null)
             {
@@ -185,10 +148,8 @@ namespace rms_gui
 
         private void LocationsTab_Click(object sender, RoutedEventArgs e)
         {
-            if (WaitersListControl != null)
-                WaitersListControl.Visibility = Visibility.Collapsed;
-            if (LocationsListControl != null)
-                LocationsListControl.Visibility = Visibility.Visible;
+            if (WaitersListControl != null) WaitersListControl.Visibility = Visibility.Collapsed;
+            if (LocationsListControl != null) LocationsListControl.Visibility = Visibility.Visible;
 
             if (LocationsTabBtn != null)
             {
@@ -205,49 +166,41 @@ namespace rms_gui
 
         // --- 4. BOTTOM BAR NAVIGATION ---
 
-        private void OrdersButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Show main orders view
-            UpdateBottomBarButtons(0);
-        }
+        private void OrdersButton_Click(object sender, RoutedEventArgs e) { /* Refresh orders if needed */ }
 
         private void CreateOrderButton_Click(object sender, RoutedEventArgs e)
         {
-            // Open table selection window
             this.NavigationService.Navigate(new TableSelectionPage());
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!this.NavigationService.CanGoBack) this.NavigationService.GoBack();
+            if (this.NavigationService.CanGoBack)
+                this.NavigationService.GoBack();
         }
 
         private void ProfileButton_Click(object sender, RoutedEventArgs e)
         {
-            // Open profile window
             this.NavigationService.Navigate(new ProfilePage());
         }
 
         private void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
-            // Logout and return to login window
             var result = MessageBox.Show("Tizimdan chiqmoqchimisiz? (Are you sure you want to logout?)", "Logout", MessageBoxButton.YesNo);
 
             if (result == MessageBoxResult.Yes)
             {
+                // Qotib qolmasligi uchun oldin Navigate qilamiz
                 this.NavigationService.Navigate(new LoginPage());
-                while(this.NavigationService.RemoveBackEntry != null) { } // Clear navigation history
+
+                // Orqa tarixni tozalashni sahifa yuklanib bo'lgandan KEYIN orqa fonda bajaramiz! (FREEZE ga yechim)
+                Dispatcher.BeginInvoke(new Action(() => {
+                    while (this.NavigationService.CanGoBack)
+                    {
+                        this.NavigationService.RemoveBackEntry();
+                    }
+                }), System.Windows.Threading.DispatcherPriority.Background);
             }
-        }
-
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // Handle tab selection if needed
-        }
-
-        private void UpdateBottomBarButtons(int activeIndex)
-        {
-            // This would update the styling of bottom bar buttons to show which is active
         }
     }
 }

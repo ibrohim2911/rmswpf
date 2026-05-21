@@ -39,10 +39,10 @@ namespace rms_gui
             CategoriesListControl.ItemsSource = categories;
         }
 
-        private async Task LoadMenuItemsAsync(int? categoryId = null)
+        private async Task LoadMenuItemsAsync(string categoryId = null)
         {
             string url = "/api/inventory/menu-items/";
-            if (categoryId.HasValue) url += $"?menu_category={categoryId.Value}";
+            if (!string.IsNullOrEmpty(categoryId)) url += $"?menu_category={categoryId}";
 
             // Explicitly use your model here
             var items = await ApiClient.Client.GetFromJsonAsync<List<rms_gui.Models.MenuItem>>(url);
@@ -52,7 +52,7 @@ namespace rms_gui
         private async void Category_Click(object sender, RoutedEventArgs e)
         {
             var btn = sender as Button;
-            int catId = (int)btn.Tag;
+            string catId = btn.Tag as string;
             await LoadMenuItemsAsync(catId);
         }
 

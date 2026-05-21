@@ -46,12 +46,12 @@ namespace rms_gui
             catch (Exception ex) { MessageBox.Show("Error loading locations: " + ex.Message); }
         }
 
-        private async Task LoadTablesAsync(int? locationId = null)
+        private async Task LoadTablesAsync(string locationId = null)
         {
             try
             {
                 string url = "/api/tables/tables/";
-                if (locationId.HasValue) url += $"?location={locationId.Value}";
+                if (!string.IsNullOrEmpty(locationId)) url += $"?location={locationId}";
 
                 var response = await ApiClient.Client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
@@ -67,7 +67,7 @@ namespace rms_gui
         private async void LocationFilter_Click(object sender, RoutedEventArgs e)
         {
             var btn = sender as Button;
-            int locId = (int)btn.Tag;
+            string locId = btn.Tag as string;
             await LoadTablesAsync(locId);
         }
 
