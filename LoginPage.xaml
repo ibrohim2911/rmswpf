@@ -83,12 +83,12 @@
                     <ControlTemplate TargetType="TextBox">
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
-                                BorderThickness="{TemplateBinding BorderThickness}" 
                                 CornerRadius="8" 
-                                Padding="{TemplateBinding Padding}">
+                                BorderThickness="{TemplateBinding BorderThickness}"> 
                             <ScrollViewer x:Name="PART_ContentHost" 
+                                Margin="{TemplateBinding Padding}"
                                         VerticalAlignment="Center"
-                                        Foreground="{TemplateBinding Foreground}"/>
+                                        />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
@@ -115,11 +115,11 @@
                         <Border Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}" 
                                 BorderThickness="{TemplateBinding BorderThickness}" 
-                                CornerRadius="8" 
-                                Padding="{TemplateBinding Padding}">
+                                CornerRadius="8" >
                             <ScrollViewer x:Name="PART_ContentHost" 
+                                Padding="{TemplateBinding Padding}"
                                         VerticalAlignment="Center"
-                                        Foreground="{TemplateBinding Foreground}"/>
+                                        />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
