@@ -285,5 +285,13 @@ namespace rms_gui
                 }), System.Windows.Threading.DispatcherPriority.Background);
             }
         }
+        private void OrderCard_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as Button;
+            if (btn?.Tag is Order selectedOrder)
+            {
+                this.NavigationService.Navigate(new OrderDetailPage(selectedOrder));
+            }
+        }
     }
 }

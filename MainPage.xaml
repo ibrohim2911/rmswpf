@@ -73,6 +73,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8" Padding="10">
+                            <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -178,7 +179,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <!-- ORDER CARD TEMPLATE -->
-                                <Button Style="{StaticResource CompactOrderCardStyle}" Tag="{Binding id}">
+                                <Button Style="{StaticResource CompactOrderCardStyle}" Tag="{Binding}" Click="OrdersButton_Click">
                                     <!-- Inside the card, we bind to Order properties -->
                                     <DockPanel LastChildFill="True">
                                         <Grid DockPanel.Dock="Bottom" Margin="0,5,0,0">

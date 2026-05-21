@@ -2,34 +2,37 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using rms_gui.Services;
 using rms_gui.Models;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-// Removed 'using System.Windows.Controls.MenuItem' conflicts
 
 namespace rms_gui
 {
     public partial class OrderDetailPage : Page
     {
+        private Order _currentOrder; // Endi Table emas, Order saqlaymiz
+        private List<CartItem> _cart = new List<CartItem>();
+        private List<rms_gui.Models.MenuItem> _allMenuItems = new List<rms_gui.Models.MenuItem>();
+
         private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true,
             NumberHandling = JsonNumberHandling.AllowReadingFromString
         };
-        private Table _currentTable;
-        private List<CartItem> _cart = new List<CartItem>();
 
-        public OrderDetailPage(Table table)
+        // KONSTRUKTOR ENDI ORDER QABUL QILADI
+        public OrderDetailPage(Order order)
         {
             InitializeComponent();
-            _currentTable = table;
+            _currentOrder = order;
 
-            // Link to the XAML element
-            TableHeaderText.Text = $"Stol: {table.name}";
+            // Headerga qisqartirilgan Order ID sini va stolni yozamiz
+            string shortId = order.id.Length >= 6 ? order.id.Substring(0, 6) : order.id;
+            TableHeaderText.Text = $"ID: {shortId.ToUpper()}";
 
             Loaded += OrderDetailWindow_Loaded;
         }
@@ -42,19 +45,66 @@ namespace rms_gui
 
         private async Task LoadCategoriesAsync()
         {
-
-            var categories = await ApiClient.Client.GetFromJsonAsync<List<MenuCategory>>("/api/inventory/menu-categories/", JsonOptions);
-            CategoriesListControl.ItemsSource = categories;
+            try
+            {
+                var response = await ApiClient.Client.GetAsync("/api/inventory/menu-categories/");
+                if (response.IsSuccessStatusCode)
+                {
+                    string rawJson = await response.Content.ReadAsStringAsync();
+                    var categories = JsonSerializer.Deserialize<List<MenuCategory>>(rawJson, JsonOptions);
+                    CategoriesListControl.ItemsSource = categories;
+                }
+            }
+            catch (Exception ex) { MessageBox.Show("Kategoriyalarni yuklashda xatolik: " + ex.Message); }
         }
 
         private async Task LoadMenuItemsAsync(string categoryId = null)
         {
-            string url = "/api/inventory/menu-items/";
-            if (!string.IsNullOrEmpty(categoryId)) url += $"?menu_category={categoryId}";
+            try
+            {
+                string url = "/api/inventory/menu-items/";
+                if (!string.IsNullOrEmpty(categoryId)) url += $"?menu_category={categoryId}";
 
-            // Explicitly use your model here
-            var items = await ApiClient.Client.GetFromJsonAsync<List<rms_gui.Models.MenuItem>>(url, JsonOptions);
-            MenuItemsListControl.ItemsSource = items;
+                var response = await ApiClient.Client.GetAsync(url);
+                if (response.IsSuccessStatusCode)
+                {
+                    string rawJson = await response.Content.ReadAsStringAsync();
+                    var items = JsonSerializer.Deserialize<List<rms_gui.Models.MenuItem>>(rawJson, JsonOptions);
+                    MenuItemsListControl.ItemsSource = items;
+
+                    // Dastlabki yuklanishda hamma taomlarni xotiraga olamiz (ismlarini topish uchun)
+                    if (string.IsNullOrEmpty(categoryId) && _allMenuItems.Count == 0 && items != null)
+                    {
+                        _allMenuItems = items;
+                        MapSavedItemsToCart(); // Taomlar kelgach, avval saqlanganlarni savatchaga chizamiz
+                    }
+                }
+            }
+            catch (Exception ex) { MessageBox.Show("Taomlarni yuklashda xatolik: " + ex.Message); }
+        }
+
+        private void MapSavedItemsToCart()
+        {
+            if (_allMenuItems.Count == 0 || _currentOrder.items == null) return;
+
+            _cart.Clear();
+            foreach (var oItem in _currentOrder.items)
+            {
+                if (oItem.is_deleted) continue; // O'chirilganlarni ko'rsatmaymiz
+
+                var product = _allMenuItems.FirstOrDefault(m => m.id == oItem.menu_item_id);
+                if (product != null)
+                {
+                    _cart.Add(new CartItem
+                    {
+                        Product = product,
+                        Quantity = oItem.quantity,
+                        IsSaved = true,
+                        CreatedAt = oItem.created_at
+                    });
+                }
+            }
+            RefreshCartUI();
         }
 
         private async void Category_Click(object sender, RoutedEventArgs e)
@@ -68,22 +118,21 @@ namespace rms_gui
         private void MenuItem_Click(object sender, RoutedEventArgs e)
         {
             var item = (sender as Button).Tag as rms_gui.Models.MenuItem;
-            var existingCartItem = _cart.FirstOrDefault(c => c.Product.id == item.id);
 
-            if (existingCartItem != null)
-            {
-                existingCartItem.Quantity++;
-            }
-            else
-            {
-                _cart.Add(new CartItem { Product = item, Quantity = 1 });
-            }
+            // Faqat YANGLI qo'shilgan (unsaved) qatorga qo'shish (Eskilarga tegmaymiz)
+            var existingCartItem = _cart.FirstOrDefault(c => c.Product.id == item.id && !c.IsSaved);
+
+            if (existingCartItem != null) existingCartItem.Quantity++;
+            else _cart.Add(new CartItem { Product = item, Quantity = 1, IsSaved = false });
+
             RefreshCartUI();
         }
 
         private void IncreaseQty_Click(object sender, RoutedEventArgs e)
         {
             var cartItem = (sender as Button).Tag as CartItem;
+            if (cartItem.IsSaved) { MessageBox.Show("Saqlangan taomni o'zgartirib bo'lmaydi. Yangi qo'shing."); return; }
+
             cartItem.Quantity++;
             RefreshCartUI();
         }
@@ -91,6 +140,8 @@ namespace rms_gui
         private void DecreaseQty_Click(object sender, RoutedEventArgs e)
         {
             var cartItem = (sender as Button).Tag as CartItem;
+            if (cartItem.IsSaved) { MessageBox.Show("Saqlangan taomni o'zgartirib bo'lmaydi."); return; }
+
             if (cartItem.Quantity > 1) cartItem.Quantity--;
             else _cart.Remove(cartItem);
             RefreshCartUI();
@@ -99,6 +150,8 @@ namespace rms_gui
         private void RemoveItem_Click(object sender, RoutedEventArgs e)
         {
             var cartItem = (sender as Button).Tag as CartItem;
+            if (cartItem.IsSaved) { MessageBox.Show("Saqlangan taomni o'chirish uchun administrator huquqi kerak."); return; }
+
             _cart.Remove(cartItem);
             RefreshCartUI();
         }
@@ -107,74 +160,25 @@ namespace rms_gui
         {
             CartListControl.ItemsSource = null;
             CartListControl.ItemsSource = _cart;
-
             decimal total = _cart.Sum(c => c.TotalPrice);
             TotalPriceText.Text = $"{total:N0} so'm";
-        }
-        private void OrdersButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Show main orders view
-            this.NavigationService.Navigate(new MainPage());
-        }
-
-        private void CreateOrderButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Open table selection window
-            this.NavigationService.Navigate(new TableSelectionPage());
-        }
-
-        private void BackButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!this.NavigationService.CanGoBack) this.NavigationService.GoBack();
-        }
-
-        private void ProfileButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Open profile window
-            this.NavigationService.Navigate(new ProfilePage());
-        }
-
-        private void LogoutButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Logout and return to login window
-            var result = MessageBox.Show("Tizimdan chiqmoqchimisiz? (Are you sure you want to logout?)", "Logout", MessageBoxButton.YesNo);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                this.NavigationService.Navigate(new LoginPage());
-                Dispatcher.BeginInvoke(new Action(() => {
-                    while (this.NavigationService.CanGoBack) this.NavigationService.RemoveBackEntry();
-                }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-            }
         }
 
         private async void SaveOrder_Click(object sender, RoutedEventArgs e)
         {
-            if (!_cart.Any())
+            // FAQATGINA hali saqlanmagan taomlarni ajratib olamiz
+            var unsavedItems = _cart.Where(c => !c.IsSaved).ToList();
+
+            if (!unsavedItems.Any())
             {
-                MessageBox.Show("Savatcha bo'sh! (Cart is empty)");
+                MessageBox.Show("Saqlash uchun yangi taom yo'q! (No new items to save)");
+                this.NavigationService.Navigate(new MainPage());
                 return;
             }
 
             try
             {
-                var orderPayload = new
-                {
-                    table = _currentTable.id,
-                    customer_quantity = 1
-                };
-
-                var orderResponse = await ApiClient.Client.PostAsJsonAsync("/api/orders/orders/", orderPayload);
-
-                if (!orderResponse.IsSuccessStatusCode)
-                {
-                    MessageBox.Show("Buyurtma yaratishda xatolik! (Error creating order)");
-                    return;
-                }
-
-                var createdOrder = await orderResponse.Content.ReadFromJsonAsync<Order>();
-
-                foreach (var cartItem in _cart)
+                foreach (var cartItem in unsavedItems)
                 {
                     var itemPayload = new
                     {
@@ -183,17 +187,34 @@ namespace rms_gui
                         price = cartItem.Product.price
                     };
 
-                    await ApiClient.Client.PostAsJsonAsync($"/api/orders/orders/{createdOrder.id}/add_item/", itemPayload);
+                    // Buyurtma (Order) allaqachon mavjud, faqat yangi taomlarni POST qilamiz
+                    await ApiClient.Client.PostAsJsonAsync($"/api/orders/orders/{_currentOrder.id}/add_item/", itemPayload);
                 }
 
-                MessageBox.Show("Buyurtma muvaffaqiyatli saqlandi! (Order saved!)");
-
+                MessageBox.Show("Yangi taomlar saqlandi! (Items saved!)");
                 _cart.Clear();
                 this.NavigationService.Navigate(new MainPage());
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Xatolik: " + ex.Message);
+            }
+        }
+
+        // --- BOTTOM BAR ---
+        private void OrdersButton_Click(object sender, RoutedEventArgs e) => this.NavigationService.Navigate(new MainPage());
+        private void CreateOrderButton_Click(object sender, RoutedEventArgs e) => this.NavigationService.Navigate(new TableSelectionPage());
+        private void BackButton_Click(object sender, RoutedEventArgs e) { if (this.NavigationService.CanGoBack) this.NavigationService.GoBack(); }
+        private void ProfileButton_Click(object sender, RoutedEventArgs e) => this.NavigationService.Navigate(new ProfilePage());
+        private void LogoutButton_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show("Tizimdan chiqmoqchimisiz?", "Logout", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                this.NavigationService.Navigate(new LoginPage());
+                Dispatcher.BeginInvoke(new Action(() => {
+                    while (this.NavigationService.CanGoBack) this.NavigationService.RemoveBackEntry();
+                }), System.Windows.Threading.DispatcherPriority.Background);
             }
         }
     }

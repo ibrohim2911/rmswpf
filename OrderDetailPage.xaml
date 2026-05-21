@@ -173,8 +173,11 @@
                                         <ColumnDefinition Width="70"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock Grid.Column="0" Text="{Binding MenuItem.name}" VerticalAlignment="Center" FontWeight="SemiBold" FontSize="15" TextWrapping="Wrap"/>
-
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Product.name}" FontWeight="SemiBold" FontSize="15" TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding TimeSinceCreated}" Foreground="#FBBF24" FontSize="12" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="5,0">
                                         <Button Content="-" Tag="{Binding}" Click="DecreaseQty_Click" Background="#4B5563" Style="{StaticResource SmallIconButtonStyle}"/>
                                         <TextBlock Text="{Binding Quantity}" Width="25" TextAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
@@ -241,7 +244,7 @@
                 </Border>
 
                 <!-- Square Products Grid -->
-                <ItemsControl x:Name="MenuItemsListControl">
+                <ItemsControl Grid.Row="2" x:Name="MenuItemsListControl">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Orientation="Horizontal" />

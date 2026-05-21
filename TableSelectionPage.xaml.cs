@@ -112,11 +112,11 @@ namespace rms_gui
                     {
                         this.NavigationService.RemoveBackEntry();
                     }
-                }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                }), System.Windows.Threading.DispatcherPriority.Background);
             }
         }
 
-        private void Table_Click(object sender, RoutedEventArgs e)
+        private async void Table_Click(object sender, RoutedEventArgs e)
         {
             var btn = sender as Button;
             var selectedTable = btn.Tag as Table;
@@ -127,7 +127,29 @@ namespace rms_gui
                 return;
             }
 
-            this.NavigationService.Navigate(new OrderDetailPage(selectedTable));
+            try
+            {
+                var orderPayload = new { table = selectedTable.id, customer_quantity = 1 };
+                var response = await ApiClient.Client.PostAsJsonAsync("/api/orders/orders/", orderPayload);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, NumberHandling = JsonNumberHandling.AllowReadingFromString };
+                    var createdOrder = await response.Content.ReadFromJsonAsync<Order>(options);
+
+                    // Yaratilgan yangi Order bilan sahifaga o'tish
+                    this.NavigationService.Navigate(new OrderDetailPage(createdOrder));
+                }
+                else
+                {
+                    string err = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show("Buyurtma yaratishda xatolik: " + err);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Xatolik: " + ex.Message);
+            }
         }
         private void UpdateBottomBarButtons(int activeIndex)
         {

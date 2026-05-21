@@ -133,6 +133,8 @@ namespace rms_gui.Models
         public decimal price { get; set; }
         [JsonPropertyName("is_deleted")]
         public bool is_deleted { get; set; }
+        [JsonPropertyName("created_at")]
+        public DateTime? created_at { get; set; }
     }
 
     public class OrderPayment
@@ -154,5 +156,20 @@ namespace rms_gui.Models
         public MenuItem Product { get; set; }
         public int Quantity { get; set; }
         public decimal TotalPrice => Product.price * Quantity;
+        public bool IsSaved { get; set; }
+        public DateTime? CreatedAt { get; set; }
+
+        public string TimesinceCreated
+        {
+            get
+            {
+                if(!IsSaved) return "Yangi";
+                if (CreatedAt.HasValue) return "Saqlangan";
+
+                var span = DateTime.UtcNow - CreatedAt.Value.ToUniversalTime();
+                if (span.TotalSeconds < 60) return $"{(int)span.TotalSeconds} bir necha soniya oldin";
+                return $"{(int)span.TotalMinutes} daqiqa oldin"; 
+            }
+        }
     }
 }
