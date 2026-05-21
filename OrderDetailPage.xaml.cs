@@ -11,12 +11,12 @@ using rms_gui.Models;
 
 namespace rms_gui
 {
-    public partial class OrderDetailWindow: Window
+    public partial class OrderDetailPage : Page
     {
         private Table _currentTable;
         private List<CartItem> _cart = new List<CartItem>();
 
-        public OrderDetailWindow(Table table)
+        public OrderDetailPage(Table table)
         {
             InitializeComponent();
             _currentTable = table;

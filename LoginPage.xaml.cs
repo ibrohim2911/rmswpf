@@ -11,17 +11,17 @@ using rms_gui.Models;
 
 namespace rms_gui
 {
-    public partial class LoginWindow : Window
+    public partial class LoginPage : Page
     {
         private string _pinInput = string.Empty;
         private PasswordBox _pinBox;
         private TextBox _usernameBox;
         private PasswordBox _passwordBox;
 
-        public LoginWindow()
+        public LoginPage()
         {
             InitializeComponent();
-            Loaded += (s, e) => InitializeControls();
+            Loaded += LoginPage_Loaded;
         }
 
         private void InitializeControls()

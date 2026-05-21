@@ -14,19 +14,10 @@ namespace rms_gui
             base.OnStartup(e);
 
             // Show login window as a dialog
-            LoginWindow loginWindow = new LoginWindow();
+            RootWindow rootWindow = new RootWindow();
+            rootWindow.Show();
 
-            if (loginWindow.ShowDialog() == true)
-            {
-                // Login successful, show main window
-                MainWindow mainWindow = new MainWindow();
-                mainWindow.Show();
-            }
-            else
-            {
-                // Login cancelled or failed, exit application
-                Shutdown();
-            }
+            rootWindow.MainFrame.Navigate(new LoginPage());
         }
     }
 }

@@ -1,11 +1,11 @@
-﻿<Window x:Class="rms_gui.OrderDetailWindow"
+﻿<Page x:Class="rms_gui.OrderDetailWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="POS Screen" Height="768" Width="1080"
-        WindowStyle="None" WindowState="Maximized"
+        
         Background="#121212" Foreground="White" FontFamily="Segoe UI">
 
-    <Window.Resources>
+    <Page.Resources>
         <!-- Style for Bottom Navigation Buttons -->
         <Style x:Key="NavButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
@@ -120,7 +120,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
-    </Window.Resources>
+    </Page.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -271,4 +271,4 @@
             </UniformGrid>
         </Border>
     </Grid>
-</Window>
+</Page>

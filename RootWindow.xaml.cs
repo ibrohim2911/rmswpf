@@ -13,11 +13,11 @@ using System.Windows.Shapes;
 namespace rms_gui
 {
     /// <summary>
-    /// Interaction logic for ProfileWindow.xaml
+    /// Interaction logic for RootWindow.xaml
     /// </summary>
-    public partial class ProfileWindow : Window
+    public partial class RootWindow : Window
     {
-        public ProfileWindow()
+        public RootWindow()
         {
             InitializeComponent();
         }

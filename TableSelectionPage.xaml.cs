@@ -12,11 +12,11 @@ using System.Text.Json.Serialization;
 
 namespace rms_gui
 {
-    public partial class TableSelectionWindow : Window
+    public partial class TableSelectionPage : Page
     {
         public Table SelectedTable { get; set; }
 
-        public TableSelectionWindow()
+        public TableSelectionPage()
         {
             InitializeComponent();
             Loaded += TableSelectionWindow_Loaded;

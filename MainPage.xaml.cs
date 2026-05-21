@@ -19,14 +19,13 @@ namespace rms_gui
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainPage : Page
     {
-        public MainWindow()
+        public MainPage()
         {
             InitializeComponent();
-            Loaded += MainWindow_Loaded;
+            this.Loaded += MainWindow_Loaded;
         }
-
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             // When window opens, load all data initially
