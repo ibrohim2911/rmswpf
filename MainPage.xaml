@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:rms_gui"
         mc:Ignorable="d"
         Title="RMS - Waiter Kiosk" 
-        
+        Height="768"
+      Width="1024"
         Background="#121212" FontFamily="Segoe UI">
 
     <Page.Resources>
@@ -134,7 +135,7 @@
                         <ItemsControl x:Name="WaitersListControl">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button Style="{StaticResource FilterButtonStyle}" Content="{Binding first_name}" Tag="{Binding id}" Click="WaiterFilter_Click"/>
+                                    <Button Style="{StaticResource FilterButtonStyle}" Content="{Binding name}" Tag="{Binding id}" Click="WaiterFilter_Click"/>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

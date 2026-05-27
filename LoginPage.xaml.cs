@@ -68,12 +68,13 @@ namespace rms_gui
             try
             {
                 await ApiClient.EnsureCsrfTokenAsync();
-                var loginRequest = new LoginRequest { pin = pin };
+                var loginRequest = new PinLoginRequest { pin = int.Parse(pin) };
 
                 var jsonContent = System.Text.Json.JsonSerializer.Serialize(loginRequest);
                 var content = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
 
-                var response = await ApiClient.Client.PostAsync("/api/users/auth/login/", content);
+                var response = await ApiClient.Client.PostAsync("/api/users/auth/pin-login/", content);
+                
                 ApiClient.UpdateCsrfToken();
                 if (response.IsSuccessStatusCode)
                 {
@@ -83,7 +84,7 @@ namespace rms_gui
                 else
                 {
                     string errorContent = await response.Content.ReadAsStringAsync();
-                    MessageBox.Show($"PIN noto'g'ri! ({response.StatusCode})\n{errorContent}", "Login Failed");
+                    MessageBox.Show($"PIN noto'g'ri! ({response.StatusCode})\n{errorContent} \n {content.ReadAsStringAsync().Result}", "Login Failed");
                     _pinInput = string.Empty;
                     if (_pinBox != null) _pinBox.Password = "";
                 }

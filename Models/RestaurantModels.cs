@@ -4,14 +4,17 @@ using System.Text.Json.Serialization;
 namespace rms_gui.Models
 {
     // --- AUTHENTICATION MODELS ---
+    public class PinLoginRequest
+    {
+        [JsonPropertyName("pin")]
+        public int pin { get; set; }
+    }
     public class LoginRequest
     {
-        [JsonPropertyName("username")]
+        [JsonPropertyName ("username")]
         public string username { get; set; }
-        [JsonPropertyName("password")]
+        [JsonPropertyName ("password")]
         public string password { get; set; }
-        [JsonPropertyName("pin")]
-        public string pin { get; set; }
     }
 
     public class User
@@ -24,6 +27,8 @@ namespace rms_gui.Models
         public string first_name { get; set; }
         [JsonPropertyName("role")]
         public string role { get; set; }
+        [JsonPropertyName("name")]
+        public string name { get; set; }
     }
 
     // --- TABLE & LOCATION MODELS ---
@@ -94,7 +99,7 @@ namespace rms_gui.Models
         public string waiter_id { get; set; } // Updated to string for UUID
 
         [JsonPropertyName("customer_quantity")]
-        public int customer_quantity { get; set; }
+        public int? customer_quantity { get; set; }
         [JsonPropertyName("status")]
         public string status { get; set; }
         [JsonPropertyName("raw_price")]
@@ -112,6 +117,8 @@ namespace rms_gui.Models
         public string table_name { get; set; }
         [JsonPropertyName("location_name")]
         public string location_name { get; set; }
+        [JsonPropertyName("tax")]
+        public decimal? tax { get; set; }
     }
 
     public class OrderItem

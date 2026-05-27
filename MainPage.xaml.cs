@@ -1,14 +1,16 @@
+using rms_gui.Models;
+using rms_gui.Services;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using rms_gui.Services;
-using rms_gui.Models;
 
 namespace rms_gui
 {
@@ -267,7 +269,7 @@ namespace rms_gui
             this.NavigationService.Navigate(new ProfilePage());
         }
 
-        private void LogoutButton_Click(object sender, RoutedEventArgs e)
+        private async void LogoutButton_Click(object sender, RoutedEventArgs e)
         {
             var result = MessageBox.Show("Tizimdan chiqmoqchimisiz? (Are you sure you want to logout?)", "Logout", MessageBoxButton.YesNo);
 
@@ -275,14 +277,9 @@ namespace rms_gui
             {
                 // Qotib qolmasligi uchun oldin Navigate qilamiz
                 this.NavigationService.Navigate(new LoginPage());
-
-                // Orqa tarixni tozalashni sahifa yuklanib bo'lgandan KEYIN orqa fonda bajaramiz! (FREEZE ga yechim)
-                Dispatcher.BeginInvoke(new Action(() => {
-                    while (this.NavigationService.CanGoBack)
-                    {
-                        this.NavigationService.RemoveBackEntry();
-                    }
-                }), System.Windows.Threading.DispatcherPriority.Background);
+                string url = "api/users/auth/logout";
+                var content = new StringContent("", Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await ApiClient.Client.PostAsync(url, content);
             }
         }
         private void OrderCard_Click(object sender, RoutedEventArgs e)

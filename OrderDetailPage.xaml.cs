@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -17,6 +18,7 @@ namespace rms_gui
         private Order _currentOrder; // Endi Table emas, Order saqlaymiz
         private List<CartItem> _cart = new List<CartItem>();
         private List<rms_gui.Models.MenuItem> _allMenuItems = new List<rms_gui.Models.MenuItem>();
+        private string _selectedPaymentMethod = "cash"; // Default payment method
 
         private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
         {
@@ -106,7 +108,6 @@ namespace rms_gui
             }
             RefreshCartUI();
         }
-
         private async void Category_Click(object sender, RoutedEventArgs e)
         {
             var btn = sender as Button;
@@ -198,6 +199,256 @@ namespace rms_gui
             catch (Exception ex)
             {
                 MessageBox.Show("Xatolik: " + ex.Message);
+            }
+        }
+
+        // --- NEW ORDER ACTIONS ---
+
+        /// <summary>
+        /// Clear unsaved items from the cart
+        /// </summary>
+        private void ClearUnsavedItems_Click(object sender, RoutedEventArgs e)
+        {
+            var unsavedItems = _cart.Where(c => !c.IsSaved).ToList();
+
+            if (!unsavedItems.Any())
+            {
+                MessageBox.Show("O'chirilishga tayyor yangi taom yo'q!");
+                return;
+            }
+
+            var result = MessageBox.Show($"{unsavedItems.Count} ta yangi taomni o'chirmoqchimisiz?", 
+                "Tasdiqlash", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                foreach (var item in unsavedItems)
+                {
+                    _cart.Remove(item);
+                }
+                RefreshCartUI();
+                MessageBox.Show("Yangi taomlar o'chirildi!");
+            }
+        }
+
+        /// <summary>
+        /// Preview the order before saving
+        /// </summary>
+        private void PreviewCheck_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var unsavedItems = _cart.Where(c => !c.IsSaved).ToList();
+                decimal totalPrice = unsavedItems.Sum(c => c.TotalPrice);
+                decimal tax = totalPrice * 0.10m; // 10% tax
+                decimal finalTotal = totalPrice + tax;
+
+                string preview = "=== DASTLABKI CHEK ===\n\n";
+                preview += $"Buyurtma ID: {_currentOrder.id.Substring(0, 6).ToUpper()}\n";
+                preview += $"Vaqt: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n";
+                preview += "------------------------\n\n";
+
+                foreach (var item in unsavedItems)
+                {
+                    preview += $"{item.Product.name}\n";
+                    preview += $"  Miqdori: {item.Quantity} x {item.Product.price:N0} = {item.TotalPrice:N0} so'm\n";
+                }
+
+                preview += "\n------------------------\n";
+                preview += $"Jami: {totalPrice:N0} so'm\n";
+                preview += $"QQS (10%): {tax:N0} so'm\n";
+                preview += $"Umumiy: {finalTotal:N0} so'm\n";
+                preview += "========================\n";
+
+                MessageBox.Show(preview, "Dastlabki Chek", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Xatolik: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Close order item and change its status to pre-close
+        /// </summary>
+        private async void CloseOrderItem_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var result = MessageBox.Show("Buyurtmani yopmoqchimisiz? Status 'Dastlabki yopilgan' holatiga o'zgaradi.", 
+                    "Tasdiqlash", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.No) return;
+
+                var response = await ApiClient.Client.PostAsync(
+                    $"/api/orders/order/{_currentOrder.id}/preclose", 
+                    new StringContent("")
+                );
+
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Buyurtma dastlabki yopilgan holatiga o'tkazildi!");
+                    // Refresh order data
+                    await LoadOrderDetails();
+                }
+                else
+                {
+                    MessageBox.Show("Xatolik: " + response.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Xatolik: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Open payment popup
+        /// </summary>
+        private void AddPayment_Click(object sender, RoutedEventArgs e)
+        {
+            PaymentAmountDisplay.Text = "0";
+            _selectedPaymentMethod = "cash";
+            CashPaymentMethod.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(16, 185, 129)); // Green
+            CardPaymentMethod.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(107, 114, 128)); // Gray
+
+            decimal orderTotal = _cart.Sum(c => c.TotalPrice);
+            PaymentOrderTotal.Text = $"{orderTotal:N0} so'm";
+
+            PaymentOverlay.Visibility = Visibility.Visible;
+            PaymentPopupBorder.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>
+        /// Close payment popup
+        /// </summary>
+        private void ClosePayment_Click(object sender, RoutedEventArgs e)
+        {
+            PaymentOverlay.Visibility = Visibility.Collapsed;
+            PaymentPopupBorder.Visibility = Visibility.Collapsed;
+        }
+
+        /// <summary>
+        /// Handle numpad button clicks
+        /// </summary>
+        private void NumpadButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            string content = button.Content.ToString();
+
+            if (PaymentAmountDisplay.Text == "0" && content != ".")
+            {
+                PaymentAmountDisplay.Text = content;
+            }
+            else if (content == "." && !PaymentAmountDisplay.Text.Contains("."))
+            {
+                PaymentAmountDisplay.Text += content;
+            }
+            else if (content != ".")
+            {
+                PaymentAmountDisplay.Text += content;
+            }
+        }
+
+        /// <summary>
+        /// Handle backspace on numpad
+        /// </summary>
+        private void NumpadBackspace_Click(object sender, RoutedEventArgs e)
+        {
+            if (PaymentAmountDisplay.Text.Length > 1)
+            {
+                PaymentAmountDisplay.Text = PaymentAmountDisplay.Text.Substring(0, PaymentAmountDisplay.Text.Length - 1);
+            }
+            else
+            {
+                PaymentAmountDisplay.Text = "0";
+            }
+        }
+
+        /// <summary>
+        /// Select payment method (card or cash)
+        /// </summary>
+        private void PaymentMethod_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            _selectedPaymentMethod = button.Tag.ToString();
+
+            // Reset colors
+            CashPaymentMethod.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(107, 114, 128)); // Gray
+            CardPaymentMethod.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(107, 114, 128)); // Gray
+
+            // Highlight selected
+            if (_selectedPaymentMethod == "cash")
+            {
+                CashPaymentMethod.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(16, 185, 129)); // Green
+            }
+            else
+            {
+                CardPaymentMethod.Background = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(37, 99, 235)); // Blue
+            }
+        }
+
+        /// <summary>
+        /// Submit payment to API
+        /// </summary>
+        private async void ConfirmPayment_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!decimal.TryParse(PaymentAmountDisplay.Text, out decimal amount) || amount <= 0)
+                {
+                    MessageBox.Show("Iltimos, to'g'ri to'lov summasini kiriting!");
+                    return;
+                }
+
+                var paymentPayload = new
+                {
+                    amount = amount,
+                    method = _selectedPaymentMethod
+                };
+
+                var response = await ApiClient.Client.PostAsJsonAsync(
+                    $"/api/orders/orders/{_currentOrder.id}/add_payment/",
+                    paymentPayload
+                );
+
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show($"{amount:N0} so'm to'lov qabul qilindi!");
+                    ClosePayment_Click(null, null);
+                    // Refresh order data
+                    await LoadOrderDetails();
+                }
+                else
+                {
+                    MessageBox.Show("To'lovni qo'shishda xatolik: " + response.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Xatolik: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Load/refresh order details from API
+        /// </summary>
+        private async Task LoadOrderDetails()
+        {
+            try
+            {
+                var response = await ApiClient.Client.GetAsync($"/api/orders/orders/{_currentOrder.id}/");
+                if (response.IsSuccessStatusCode)
+                {
+                    string rawJson = await response.Content.ReadAsStringAsync();
+                    _currentOrder = JsonSerializer.Deserialize<Order>(rawJson, JsonOptions);
+                    MapSavedItemsToCart();
+                    RefreshCartUI();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Buyurtma ma'lumotlarini yangilashshda xatolik: " + ex.Message);
             }
         }
 

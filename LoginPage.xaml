@@ -70,35 +70,39 @@
         </Style>
 
         <!-- Style for TextBoxes -->
-        <Style x:Key="TextBoxInputStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="#222"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="CaretBrush" Value="White"/>
-            <Setter Property="BorderBrush" Value="#444"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="Padding" Value="15"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}" 
-                                CornerRadius="8" 
-                                BorderThickness="{TemplateBinding BorderThickness}"> 
-                            <ScrollViewer x:Name="PART_ContentHost" 
-                                Margin="{TemplateBinding Padding}"
-                                        VerticalAlignment="Center"
-                                        />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter Property="BorderBrush" Value="#3B82F6"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+		<Style x:Key="TextBoxInputStyle" TargetType="TextBox">
+			<Setter Property="Background" Value="#222"/>
+			<Setter Property="Foreground" Value="White"/>
+			<Setter Property="CaretBrush" Value="White"/>
+			<Setter Property="BorderBrush" Value="#444"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="FontSize" Value="18"/>
+			<Setter Property="Padding" Value="15,0,15,0"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="TextBox">
+						<Border Background="{TemplateBinding Background}"
+								BorderBrush="{TemplateBinding BorderBrush}"
+								CornerRadius="8"
+								BorderThickness="{TemplateBinding BorderThickness}"
+								Padding="{TemplateBinding Padding}">
+
+							<ScrollViewer x:Name="PART_ContentHost"
+										  Focusable="False"
+										  HorizontalScrollBarVisibility="Hidden"
+										  VerticalScrollBarVisibility="Hidden"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsFocused" Value="True">
+								<Setter Property="BorderBrush" Value="#3B82F6"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 
         <!-- Style for PasswordBoxes -->
         <Style x:Key="PasswordBoxInputStyle" TargetType="PasswordBox">

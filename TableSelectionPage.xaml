@@ -31,31 +31,41 @@
 		</Style>
 
 		<!-- Style for Vertical Location Filter Buttons (Left Panel) -->
-		<Style x:Key="LocationButtonStyle" TargetType="Button">
-			<Setter Property="Background" Value="Transparent"/>
-			<Setter Property="Foreground" Value="#9CA3AF"/>
-			<Setter Property="FontSize" Value="16"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-			<Setter Property="BorderThickness" Value="0"/>
-			<Setter Property="Padding" Value="20,18"/>
-			<Setter Property="Template">
-				<Setter.Value>
-					<ControlTemplate TargetType="Button">
-						<Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
-							<ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
-						</Border>
-						<ControlTemplate.Triggers>
-							<Trigger Property="IsMouseOver" Value="True">
-								<Setter Property="Background" Value="#2A2A30"/>
-								<Setter Property="Foreground" Value="White"/>
-							</Trigger>
-						</ControlTemplate.Triggers>
-					</ControlTemplate>
-				</Setter.Value>
-			</Setter>
-		</Style>
+        <Style x:Key="LocationButtonStyle" TargetType="RadioButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,18"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        Background="{TemplateBinding Background}"
+                        SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Left" 
+                                      VerticalAlignment="Center" 
+                                      Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#2A2A30"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
 
-		<!-- Square Style used for Tables (Same as Menu Items) -->
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter Property="Background" Value="#1A73E8"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Square Style used for Tables (Same as Menu Items) -->
 		<Style x:Key="TableCardStyle" TargetType="Button">
 			<Setter Property="Background" Value="#1E1E24"/>
 			<Setter Property="Foreground" Value="White"/>
@@ -101,31 +111,37 @@
 			</Grid.ColumnDefinitions>
 
 			<!-- LEFT PANEL: LOCATION FILTERS -->
-			<Grid Grid.Column="0" Background="#1A1A1D">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition Height="*"/>
-				</Grid.RowDefinitions>
+            <Grid Grid.Column="0" Background="#1A1A1D">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-				<TextBlock Grid.Row="0" Text="ZONALAR / LOCATIONS" Foreground="White" FontWeight="Bold" FontSize="18" Margin="20,25,20,15"/>
-				<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-					<StackPanel>
-						<Button Style="{StaticResource LocationButtonStyle}" Content="Barcha zonalar (All)" Click="ClearLocationFilter_Click"/>
+                <TextBlock Grid.Row="0" Text="ZONALAR / LOCATIONS" Foreground="White" FontWeight="Bold" FontSize="18" Margin="20,25,20,15"/>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <RadioButton Style="{StaticResource LocationButtonStyle}" 
+                         Content="Barcha zonalar (All)" 
+                         GroupName="LocationTabs"
+                         IsChecked="True"
+                         Checked="ClearLocationFilter_Click"/>
 
-						<ItemsControl x:Name="LocationsListControl">
-							<ItemsControl.ItemTemplate>
-								<DataTemplate>
-									<Button Style="{StaticResource LocationButtonStyle}" Content="{Binding name}" Tag="{Binding id}" Click="LocationFilter_Click"/>
-								</DataTemplate>
-							</ItemsControl.ItemTemplate>
-						</ItemsControl>
-					</StackPanel>
-				</ScrollViewer>
+                        <ItemsControl x:Name="LocationsListControl">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <RadioButton Style="{StaticResource LocationButtonStyle}" 
+                                     Content="{Binding name}" 
+                                     Tag="{Binding id}" 
+                                     GroupName="LocationTabs"
+                                     Checked="LocationFilter_Click"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
 
-
-			</Grid>
-
-			<!-- DIVIDER -->
+            <!-- DIVIDER -->
 			<Border Grid.Column="1" Background="#333" />
 
 			<!-- RIGHT PANEL: TABLES -->

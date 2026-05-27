@@ -66,7 +66,7 @@ namespace rms_gui
 
         private async void LocationFilter_Click(object sender, RoutedEventArgs e)
         {
-            var btn = sender as Button;
+            var btn = sender as RadioButton;
             string locId = btn.Tag as string;
             await LoadTablesAsync(locId);
         }
